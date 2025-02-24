@@ -1,0 +1,3 @@
+[submodule "src/event-driven"]
+	path = src/event-driven
+	url = git@github.com:mherradon01/event-driven.git
