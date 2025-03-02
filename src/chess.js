@@ -38,11 +38,11 @@ class ChessGame {
         if (source === target) return 'cancel'
 
         try {
-            var move = this.game.move({
-                from: source,
-                to: target,
-                promotion: 'q' // NOTE: always promote to a queen for example simplicity
-            })
+        var move = this.game.move({
+            from: source,
+            to: target,
+            promotion: 'q' // NOTE: always promote to a queen for example simplicity
+        })
         } catch (e) {
             // illegal move
             return 'snapback'
@@ -95,6 +95,29 @@ class ChessGame {
                 this.redSquare?.css('background', 'yellow')
             }
         }
+
+        document.getElementById('status').innerText = status
+
+        // Update PGN table
+        const pgnTableBody = document.getElementById('pgn')
+        pgnTableBody.innerHTML = ''
+        const moves = this.game.history({ verbose: true })
+        for (let i = 0; i < moves.length; i += 2) {
+            const row = document.createElement('tr')
+            const moveNumberCell = document.createElement('td')
+            moveNumberCell.textContent = (i / 2 + 1).toString()
+            const whiteMoveCell = document.createElement('td')
+            whiteMoveCell.textContent = moves[i].san
+            const blackMoveCell = document.createElement('td')
+            blackMoveCell.textContent = moves[i + 1] ? moves[i + 1].san : ''
+            row.appendChild(moveNumberCell)
+            row.appendChild(whiteMoveCell)
+            row.appendChild(blackMoveCell)
+            pgnTableBody.appendChild(row)
+        }
+
+        // Update FEN
+        document.getElementById('fen').innerText = this.game.fen()
     }
 
     removeGreySquares() {
@@ -133,6 +156,12 @@ class ChessGame {
 
     onMouseoutSquare(square, piece) {
         this.removeGreySquares()
+    }
+
+    endGame() {
+        this.game.reset()
+        this.chessBoard.start()
+        this.updateStatus()
     }
 }
 

@@ -16,7 +16,9 @@
 body {
   margin: 0;
   display: flex;
-  place-items: center;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   min-width: 320px;
   min-height: 100vh;
 }
@@ -28,13 +30,105 @@ body {
   text-align: center;
 }
 
+#board-info {
+  display: none; /* Hide by default */
+  justify-content: center;
+  align-items: flex-start;
+  gap: 20px;
+}
+
+#board-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
 #board {
   margin: 0 auto;
   display: flex;
   justify-content: center;
   align-items: center;
   width: 100%;
-  min-width: 300px;
+  min-width: 480px;
   max-width: 480px;
   aspect-ratio: 1 / 1;
+}
+
+#title {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+}
+
+#info {
+  margin-top: 20px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  align-items: center; /* Center align items vertically */
+}
+
+.info-item {
+  text-align: center;
+}
+
+#toggleButton {
+  margin: 20px;
+}
+
+#board-info.hidden {
+  display: none;
+}
+
+.badge {
+  display: inline-block;
+  padding: 0.25em 0.4em;
+  font-size: 75%;
+  font-weight: 700;
+  line-height: 1;
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: baseline;
+  border-radius: 0.25rem;
+  color: #fff;
+  background-color: #007bff;
+}
+
+#pgn-table {
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+#pgn-table table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+#pgn-table th, #pgn-table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+}
+
+#pgn-table th {
+  background-color: #444; /* Darker background color */
+  color: #fff; /* White text color */
+  text-align: center;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+#menu {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: flex;
+  gap: 10px;
+}
+
+#menu button {
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
 }

@@ -6,16 +6,48 @@
   <link rel="icon" type="image/svg+xml" href="/vite.svg" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Vite App</title>
+  <style>
+    #info {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+  </style>
 </head>
 
 <body>
-  <div id="board"></div>
-  <label>Status:</label>
-  <div id="status"></div>
-  <label>FEN:</label>
-  <div id="fen"></div>
-  <label>PGN:</label>
-  <div id="pgn"></div>
+  <div id="title"><h1>Chess</h1></div>
+  <div id="menu">
+    <button id="login-button">Login</button>
+    <button id="logout-button" style="display: none;">Logout</button>
+  </div>
+  <div id="board-info" class="hidden">
+    <div id="board-container">
+      <div id="board"></div>
+      <div id="info">
+        <div class="info-item">
+          <label>Status:</label>
+          <div id="status"></div>
+        </div>
+        <div class="info-item">
+          <button id="fen-button">Copy FEN</button>
+          <div id="fen" style="display: none;"></div>
+        </div>
+      </div>
+    </div>
+    <div id="pgn-table">
+      <table>
+        <thead>
+          <tr>
+            <th>Move</th>
+            <th>White</th>
+            <th>Black</th>
+          </tr>
+        </thead>
+        <tbody id="pgn"></tbody>
+      </table>
+    </div>
+  </div>
   <script type="module" src="/src/main.js"></script>
 </body>
 
