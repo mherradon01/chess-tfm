@@ -6,7 +6,7 @@ class ChessGame {
     constructor(config) {
         this.game = new Chess()
         this.chessBoard = Chessboard('board', config)
-
+        this.moves = []
         config.onDragStart = this.onDragStart.bind(this)
         config.onDrop = this.onDrop.bind(this)
         config.onMouseoutSquare = this.onMouseoutSquare.bind(this)
@@ -16,6 +16,7 @@ class ChessGame {
 
     whiteSquareGrey = '#a9a9a9'
     blackSquareGrey = '#696969'
+
 
     onDragStart(source, piece, position, orientation) {
         // do not pick up pieces if the game is over
@@ -98,18 +99,22 @@ class ChessGame {
 
         document.getElementById('status').innerText = status
 
+        const moves = this.game.history({ verbose: true })
+        this.moves.push({fen: this.game.fen(), move: moves.at(-1)})
+
         // Update PGN table
         const pgnTableBody = document.getElementById('pgn')
         pgnTableBody.innerHTML = ''
-        const moves = this.game.history({ verbose: true })
-        for (let i = 0; i < moves.length; i += 2) {
+        for (let i = 0; i < this.moves.length; i += 2) {
             const row = document.createElement('tr')
             const moveNumberCell = document.createElement('td')
             moveNumberCell.textContent = (i / 2 + 1).toString()
             const whiteMoveCell = document.createElement('td')
-            whiteMoveCell.textContent = moves[i].san
+            whiteMoveCell.textContent = this.moves[i].move.san
+            whiteMoveCell.dataset.fen = this.moves[i].fen
             const blackMoveCell = document.createElement('td')
-            blackMoveCell.textContent = moves[i + 1] ? moves[i + 1].san : ''
+            blackMoveCell.textContent = this.moves[i + 1] ? this.moves[i + 1].move.san : ''
+            blackMoveCell.dataset.fen = this.moves[i + 1] ? this.moves[i + 1].fen : ''
             row.appendChild(moveNumberCell)
             row.appendChild(whiteMoveCell)
             row.appendChild(blackMoveCell)

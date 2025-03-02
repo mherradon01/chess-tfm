@@ -38,3 +38,41 @@ document.getElementById('logout-button').addEventListener('click', () => {
   game.endGame()
   game = null
 });
+
+document.addEventListener('click', (event) => {
+  if (event.target.tagName === 'TD' && event.target.dataset.fen) {
+    const modal = document.getElementById('move-modal');
+    const modalContent = document.getElementById('move-fen');
+    modalContent.innerText = event.target.dataset.fen;
+    modal.style.display = 'block';
+    moveBoard.position(event.target.dataset.fen);
+  }
+});
+
+document.querySelector('.close').addEventListener('click', () => {
+  const modal = document.getElementById('move-modal');
+  modal.style.display = 'none';
+});
+
+window.addEventListener('click', (event) => {
+  const modal = document.getElementById('move-modal');
+  if (event.target === modal) {
+    modal.style.display = 'none';
+  }
+});
+
+document.getElementById('copy-fen-button').addEventListener('click', () => {
+  const fenText = document.getElementById('move-fen').innerText;
+  navigator.clipboard.writeText(fenText).then(() => {
+    alert('FEN copied to clipboard');
+  }).catch(err => {
+    console.error('Failed to copy FEN: ', err);
+  });
+});
+
+let moveBoard = Chessboard('move-board', {
+  pieceTheme: '/chesspieces/wikipedia/{piece}.png',
+  position: 'empty',
+  orientation: 'white',
+  draggable: false,
+})
