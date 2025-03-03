@@ -1,6 +1,7 @@
 import { Chess } from 'chess.js'
 import './chessboard/js/chessboard-1.0.0.js'
 import $ from 'jquery'
+import events from './event-driven/events.js'
 
 class ChessGame {
     constructor(config) {
@@ -102,6 +103,7 @@ class ChessGame {
         const moves = this.game.history({ verbose: true })
         this.moves.push({fen: this.game.fen(), move: moves.at(-1)})
 
+        console.log(moves)
         // Update PGN table
         const pgnTableBody = document.getElementById('pgn')
         pgnTableBody.innerHTML = ''
@@ -110,6 +112,8 @@ class ChessGame {
             const moveNumberCell = document.createElement('td')
             moveNumberCell.textContent = (i / 2 + 1).toString()
             const whiteMoveCell = document.createElement('td')
+            console.log(this.moves)
+
             whiteMoveCell.textContent = this.moves[i].move.san
             whiteMoveCell.dataset.fen = this.moves[i].fen
             const blackMoveCell = document.createElement('td')
@@ -164,9 +168,11 @@ class ChessGame {
     }
 
     endGame() {
+        events.endgame()
         this.game.reset()
         this.chessBoard.start()
-        this.updateStatus()
+        this.moves = []
+        document.getElementById('pgn').innerHTML = '' // Clear the PGN table
     }
 }
 

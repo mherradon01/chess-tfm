@@ -60,6 +60,35 @@
       color: blue; /* Change text color to blue on hover */
       cursor: pointer; /* Change cursor to pointer */
     }
+
+    #menu {
+      display: flex;
+      justify-content: space-between; /* Distribute space between buttons */
+      align-items: center;
+      padding: 10px; /* Add padding to the menu */
+    }
+
+    #start-game-button, #join-game-button {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    #join-game-button {
+      top: 60%; /* Adjust the position of the Join Game button */
+    }
+
+    #room-indicator {
+      position: fixed;
+      bottom: 10px;
+      left: 10px;
+      background-color: #333; /* Change to dark grey */
+      color: #fff; /* Change text color to white */
+      padding: 5px;
+      border: 1px solid #888;
+      display: none; /* Hide by default */
+    }
   </style>
 </head>
 <body>
@@ -67,6 +96,9 @@
   <div id="menu">
     <button id="login-button">Login</button>
     <button id="logout-button" style="display: none;">Logout</button>
+    <button id="start-game-button">Start Game</button>
+    <button id="join-game-button">Join Game</button>
+    <button id="leave-game-button" style="display: none;">Leave Game</button>
   </div>
   <div id="board-info" class="hidden">
     <div id="board-container">
@@ -104,6 +136,7 @@
       <button id="copy-fen-button">Copy FEN</button>
     </div>
   </div>
+  <div id="room-indicator">Room: <span id="room-code">None</span></div>
   <script type="module" src="/src/main.js"></script>
 </body>
 
