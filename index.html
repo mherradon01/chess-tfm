@@ -99,25 +99,24 @@
     <button id="start-game-button">Start Game</button>
     <button id="join-game-button">Join Game</button>
     <button id="leave-game-button" style="display: none;">Leave Game</button>
-    <button id="reset-game-button" style="display: none;">Reset Game</button> <!-- Add this line -->
+    <button id="reset-game-button" style="display: none;">Reset Game</button>
   </div>
   <div id="board-info" class="hidden">
     <div id="board-container">
       <div id="board"></div>
       <div id="info">
-        <div class="info-item">
+        <div class="info-item" style="display: flex; align-items: center;">
           <label>Status:</label>
-          <div id="status"></div>
+          <div id="status" style="margin-left: 10px;"></div>
+        </div>
+        <div class="info-item" style="display: flex; justify-content: space-between; width: 100%;">
+          <label id="white-player">White: Waiting...</label>
+          <span style="margin: 0 10px;">|</span> <!-- Add separator -->
+          <label id="black-player">Black: Waiting...</label>
         </div>
         <div class="info-item">
           <button id="fen-button">Copy FEN</button>
           <div id="fen" style="display: none;"></div>
-        </div>
-        <div class="info-item">
-          <label id="white-player">White: Waiting...</label> <!-- Add this line -->
-        </div>
-        <div class="info-item">
-          <label id="black-player">Black: Waiting...</label> <!-- Add this line -->
         </div>
       </div>
     </div>
@@ -141,7 +140,7 @@
       <div id="move-fen"></div>
       <div id="move-board" style="width: 500px"></div>
       <button id="copy-fen-button">Copy FEN</button>
-      <button id="rollback-button">Rollback</button> <!-- Add this line -->
+      <button id="rollback-button">Rollback</button>
     </div>
   </div>
   <div id="room-indicator">Room: <span id="room-code">None</span></div>
