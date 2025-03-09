@@ -257,6 +257,14 @@ class ChessGame {
         this.chessBoard.position(this.game.fen());
         // this.updateStatus();
     }
+
+    resetGame() {
+        this.game.reset();
+        this.chessBoard.start();
+        this.moves = [];
+        document.getElementById('pgn').innerHTML = ''; // Clear the PGN table
+        // this.updateStatus();
+    }
 }
 
 export default ChessGame

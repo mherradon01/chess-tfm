@@ -78,6 +78,8 @@ document.getElementById('start-game-button').addEventListener('click', async () 
 
     game = new ChessGame(config);
     events.addEventCallback(onEvent);
+
+    document.getElementById('reset-game-button').style.display = 'block'; // Ensure reset button is visible
   }
 });
   
@@ -90,6 +92,8 @@ function onEvent(type, event) {
       game.processMove(event.data, event.user, event.username);
     } else if (event.type === 'rollback') {
       game.rollbackToPosition(event.data.fen);
+    } else if (event.type === 'resetGame') {
+      game.resetGame();
     }
   }
 }
@@ -133,6 +137,8 @@ document.getElementById('join-game-button').addEventListener('click', async () =
 
     events.addEventCallback(onEvent);
     events.suscribeEvents(date);
+
+    document.getElementById('reset-game-button').style.display = 'block'; // Ensure reset button is visible
   }
 });
 
@@ -152,6 +158,8 @@ function leaveGame () {
   const boardInfo = document.getElementById('board-info');
   boardInfo.classList.add('hidden');
   boardInfo.style.display = 'none'; // Ensure it is hidden
+
+  document.getElementById('reset-game-button').style.display = 'none'; // Hide reset button
 }
 
 document.getElementById('leave-game-button').addEventListener('click', leaveGame);
@@ -192,6 +200,10 @@ document.getElementById('rollback-button').addEventListener('click', () => {
   events.addEvent("rollback", { fen: fenText });
   const modal = document.getElementById('move-modal');
   modal.style.display = 'none';
+});
+
+document.getElementById('reset-game-button').addEventListener('click', () => {
+  events.addEvent("resetGame", {});
 });
 
 events.init();
