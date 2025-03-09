@@ -91,9 +91,13 @@ function onEvent(type, event) {
     if (event.type === 'movePiece') {
       game.processMove(event.data, event.user, event.username);
     } else if (event.type === 'rollback') {
-      game.rollbackToPosition(event.data.fen);
+      if (event.user === game.white || event.user === game.black) {
+        game.rollbackToPosition(event.data.fen);
+      }
     } else if (event.type === 'resetGame') {
-      game.resetGame();
+      if (event.user === game.white || event.user === game.black) {
+        game.resetGame();
+      }
     }
   }
 }
@@ -196,14 +200,24 @@ document.getElementById('logout-button').addEventListener('click', async () => {
 });
 
 document.getElementById('rollback-button').addEventListener('click', () => {
-  const fenText = document.getElementById('move-fen').innerText;
-  events.addEvent("rollback", { fen: fenText });
-  const modal = document.getElementById('move-modal');
-  modal.style.display = 'none';
+  const user = events.getUser().uid;
+  if (user === game.white || user === game.black) {
+    const fenText = document.getElementById('move-fen').innerText;
+    events.addEvent("rollback", { fen: fenText });
+    const modal = document.getElementById('move-modal');
+    modal.style.display = 'none';
+  } else {
+    alert('Only players can perform this action.');
+  }
 });
 
 document.getElementById('reset-game-button').addEventListener('click', () => {
-  events.addEvent("resetGame", {});
+  const user = events.getUser().uid;
+  if (user === game.white || user === game.black) {
+    events.addEvent("resetGame", {});
+  } else {
+    alert('Only players can perform this action.');
+  }
 });
 
 events.init();

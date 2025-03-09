@@ -242,6 +242,9 @@ class ChessGame {
     }
 
     rollbackToPosition(fen) {
+        const user = events.getUser().uid;
+        if (user !== this.white && user !== this.black) return;
+
         const targetMoveIndex = this.moves.findIndex(move => move.fen === fen);
         if (targetMoveIndex === -1) return;
 
@@ -259,6 +262,9 @@ class ChessGame {
     }
 
     resetGame() {
+        const user = events.getUser().uid;
+        if (user !== this.white && user !== this.black) return;
+
         this.game.reset();
         this.chessBoard.start();
         this.moves = [];
