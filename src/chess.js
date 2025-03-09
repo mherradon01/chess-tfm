@@ -9,7 +9,9 @@ class ChessGame {
         this.chessBoard = Chessboard('board', config)
         this.moves = []
         this.white = undefined
+        this.whiteUser = undefined
         this.black = undefined
+        this.blackUser = undefined
         config.onDragStart = this.onDragStart.bind(this)
         config.onDrop = this.onDrop.bind(this)
         config.onMouseoutSquare = this.onMouseoutSquare.bind(this)
@@ -65,13 +67,15 @@ class ChessGame {
         // this.updateStatus()
     }
 
-    processMove(move, user) {
+    processMove(move, user, username) {
         // move 0 set white user
         // move 1 set black user
         if (this.moves.length === 0) {
             this.white = user
+            this.whiteUser = username
         } else if (this.moves.length === 1) {
             this.black = user
+            this.blackUser = username
         }
 
         if (this.moves.length === move.turn && this.game.turn() !== move.color) {
@@ -107,6 +111,10 @@ class ChessGame {
             console.log('Invalid move 3')
             return
         }
+
+        // Update player indicators
+        document.getElementById('white-player').innerText = `White: ${this.whiteUser || 'Waiting...'}`;
+        document.getElementById('black-player').innerText = `Black: ${this.blackUser || 'Waiting...'}`;
     }
 
     onSnapEnd() {
@@ -229,6 +237,25 @@ class ChessGame {
         this.chessBoard.start()
         this.moves = []
         document.getElementById('pgn').innerHTML = '' // Clear the PGN table
+        document.getElementById('white-player').innerText = 'White: Waiting...'
+        document.getElementById('black-player').innerText = 'Black: Waiting...'
+    }
+
+    rollbackToPosition(fen) {
+        const targetMoveIndex = this.moves.findIndex(move => move.fen === fen);
+        if (targetMoveIndex === -1) return;
+
+        this.game.reset();
+        let auxmoves = this.moves.slice(0, targetMoveIndex + 1);
+        this.moves = [];
+
+        for (let i = 0; i <= targetMoveIndex; i++) {
+            this.game.move(auxmoves[i].move);
+            this.updateStatus();
+        }
+
+        this.chessBoard.position(this.game.fen());
+        // this.updateStatus();
     }
 }
 

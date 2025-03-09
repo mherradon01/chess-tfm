@@ -87,7 +87,9 @@ function onEvent(type, event) {
 
   if (type === 'added' || type === 'modified') {
     if (event.type === 'movePiece') {
-      game.processMove(event.data, event.user);
+      game.processMove(event.data, event.user, event.username);
+    } else if (event.type === 'rollback') {
+      game.rollbackToPosition(event.data.fen);
     }
   }
 }
@@ -120,10 +122,11 @@ document.getElementById('join-game-button').addEventListener('click', async () =
     let date = moves.date;
     moves = moves.events;
 
-    console.log("moves: ", moves);
     for (let i = 0; i < moves.length; i++) {
       if (moves[i].type === 'movePiece') {
         game.processMove(moves[i].data, moves[i].user);
+      } else if (moves[i].type === 'rollback') {
+        game.rollbackToPosition(moves[i].data.fen);
       }
       //onEvent('added', moves[i]);
     }
@@ -182,6 +185,13 @@ document.getElementById('logout-button').addEventListener('click', async () => {
   game = null*/
   leaveGame();
   events.logOut();
+});
+
+document.getElementById('rollback-button').addEventListener('click', () => {
+  const fenText = document.getElementById('move-fen').innerText;
+  events.addEvent("rollback", { fen: fenText });
+  const modal = document.getElementById('move-modal');
+  modal.style.display = 'none';
 });
 
 events.init();

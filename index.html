@@ -112,6 +112,12 @@
           <button id="fen-button">Copy FEN</button>
           <div id="fen" style="display: none;"></div>
         </div>
+        <div class="info-item">
+          <label id="white-player">White: Waiting...</label> <!-- Add this line -->
+        </div>
+        <div class="info-item">
+          <label id="black-player">Black: Waiting...</label> <!-- Add this line -->
+        </div>
       </div>
     </div>
     <div id="pgn-table">
@@ -134,6 +140,7 @@
       <div id="move-fen"></div>
       <div id="move-board" style="width: 500px"></div>
       <button id="copy-fen-button">Copy FEN</button>
+      <button id="rollback-button">Rollback</button> <!-- Add this line -->
     </div>
   </div>
   <div id="room-indicator">Room: <span id="room-code">None</span></div>
