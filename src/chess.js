@@ -8,6 +8,8 @@ class ChessGame {
         this.game = new Chess()
         this.chessBoard = Chessboard('board', config)
         this.moves = []
+        this.white = undefined
+        this.black = undefined
         config.onDragStart = this.onDragStart.bind(this)
         config.onDrop = this.onDrop.bind(this)
         config.onMouseoutSquare = this.onMouseoutSquare.bind(this)
@@ -23,9 +25,8 @@ class ChessGame {
         // do not pick up pieces if the game is over
         if (this.game.isGameOver()) return false
 
-        // only pick up pieces for the side to move
-        if ((this.game.turn() === 'w' && piece.search(/^b/) !== -1) ||
-            (this.game.turn() === 'b' && piece.search(/^w/) !== -1)) {
+        if ((this.game.turn() === 'w' && piece.search(/^b/) !== -1 && this.white !== undefined && this.white !== events.getUser().uid) ||
+            (this.game.turn() === 'b' && piece.search(/^w/) !== -1 && this.black !== undefined && this.black !== events.getUser().uid)) {
             return false
         }
 
@@ -37,14 +38,20 @@ class ChessGame {
 
     onDrop(source, target) {
         // see if the move is legal
-        if (source === target) return 'cancel'
 
-        try {
-        var move = this.game.move({
+        if (source === target) return 'cancel'
+        this.removeGreySquares()
+
+        let movement = {
             from: source,
             to: target,
-            promotion: 'q' // NOTE: always promote to a queen for example simplicity
-        })
+            promotion: 'q', // NOTE: always promote to a queen for example simplicity
+            turn: this.moves.length,
+            color: this.game.turn()
+        }
+
+        try {
+            var move = this.game.move(movement)
         } catch (e) {
             // illegal move
             return 'snapback'
@@ -53,8 +60,53 @@ class ChessGame {
         // illegal move
         if (move === null) return 'snapback'
 
-        this.removeGreySquares()
-        this.updateStatus()
+        events.addEvent("movePiece", movement)
+
+        // this.updateStatus()
+    }
+
+    processMove(move, user) {
+        // move 0 set white user
+        // move 1 set black user
+        if (this.moves.length === 0) {
+            this.white = user
+        } else if (this.moves.length === 1) {
+            this.black = user
+        }
+
+        if (this.moves.length === move.turn && this.game.turn() !== move.color) {
+            if ((move.color === 'w' && this.white !== user) || (move.color === 'b' && this.black !== user)) {
+                console.log('Invalid move 1')
+                return
+            }
+
+            this.updateStatus()
+        } else if ((this.moves.length === move.turn && this.game.turn() === move.color)) {
+            if ((move.color === 'w' && this.white !== user) || (move.color === 'b' && this.black !== user)) {
+                console.log('Invalid move 2')
+                return
+            }
+
+            // see if the move is legal
+            if (move.from === move.to) return 'cancel'
+
+            try {
+                var move = this.game.move(move)
+            }
+            catch (e) {
+                // illegal move
+                return 'snapback'
+            }
+
+            // illegal move
+            if (move === null) return 'snapback'
+
+            this.chessBoard.position(this.game.fen())
+            this.updateStatus()
+        } else {
+            console.log('Invalid move 3')
+            return
+        }
     }
 
     onSnapEnd() {
@@ -101,9 +153,8 @@ class ChessGame {
         document.getElementById('status').innerText = status
 
         const moves = this.game.history({ verbose: true })
-        this.moves.push({fen: this.game.fen(), move: moves.at(-1)})
+        this.moves.push({ fen: this.game.fen(), move: moves.at(-1) })
 
-        console.log(moves)
         // Update PGN table
         const pgnTableBody = document.getElementById('pgn')
         pgnTableBody.innerHTML = ''
@@ -112,7 +163,6 @@ class ChessGame {
             const moveNumberCell = document.createElement('td')
             moveNumberCell.textContent = (i / 2 + 1).toString()
             const whiteMoveCell = document.createElement('td')
-            console.log(this.moves)
 
             whiteMoveCell.textContent = this.moves[i].move.san
             whiteMoveCell.dataset.fen = this.moves[i].fen
@@ -151,6 +201,12 @@ class ChessGame {
             square: square,
             verbose: true
         })
+
+        let user = events.getUser().uid
+        if ((this.game.turn() === 'w' && this.white !== user && this.white !== undefined) ||
+            (this.game.turn() === 'b' && this.black !== user && this.black !== undefined)) {
+            return
+        }
 
         // exit if there are no moves available for this square
         if (moves.length === 0) return

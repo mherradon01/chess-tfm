@@ -2,8 +2,6 @@ import './style.css'
 import './chessboard/css/chessboard-1.0.0.css'
 import ChessGame from './chess.js'
 import events from './event-driven/events.js'
-import { event } from 'jquery'
-import { Chess } from 'chess.js'
 
 var config = {
   pieceTheme: '/chesspieces/wikipedia/{piece}.png',
@@ -62,7 +60,7 @@ document.getElementById('copy-fen-button').addEventListener('click', () => {
 document.getElementById('start-game-button').addEventListener('click', async () => {
   // alert('Start Game button clicked');
   
-  const seed = {position: 'start'}
+  const seed = config
   const room = await events.createGame(seed);
   if (room) {
     // alert('Game created with room code: ' + room);
@@ -79,34 +77,60 @@ document.getElementById('start-game-button').addEventListener('click', async () 
     boardInfo.style.display = 'flex'; // Ensure it is displayed
 
     game = new ChessGame(config);
+    events.addEventCallback(onEvent);
   }
-  
-  // Add logic to start a new game
-
-  //
-
-  // start game
 });
   
-document.getElementById('join-game-button').addEventListener('click', async () => {
-  /*const room = prompt('Enter room code:');
-  if (room) {
-    const success = await events.joinGame(room);
-    if (success) {
-      alert('Joined game with room code: ' + room);
-      document.getElementById('room-code').innerText = room;
-      document.getElementById('room-indicator').style.display = 'block';
+function onEvent(type, event) {
+  // check if game exists and event is timestamped
+  if (!game || !event.timestamp) return;
 
-      game = new ChessGame(config);
-    } else {
-      alert('Failed to join game');
+  if (type === 'added' || type === 'modified') {
+    if (event.type === 'movePiece') {
+      game.processMove(event.data, event.user);
     }
   }
-  
-  // Add logic to join an existing game
-  document.getElementById('start-game-button').style.display = 'none';
-  document.getElementById('join-game-button').style.display = 'none';
-  document.getElementById('leave-game-button').style.display = 'block';*/
+}
+
+document.getElementById('join-game-button').addEventListener('click', async () => {
+  // const seed = {position: 'start'}
+  let roomcode = prompt('Enter the room code:');
+  const room = await events.loadGame(roomcode);
+
+  if (room) {
+    // alert('Game created with room code: ' + room);
+    document.getElementById('room-code').innerText = room;
+    document.getElementById('room-indicator').style.display = 'block';
+
+    document.getElementById('start-game-button').style.display = 'none';
+    document.getElementById('join-game-button').style.display = 'none';
+    document.getElementById('leave-game-button').style.display = 'block';
+
+    // display board
+    const boardInfo = document.getElementById('board-info');
+    boardInfo.classList.remove('hidden');
+    boardInfo.style.display = 'flex'; // Ensure it is displayed
+
+    let seed = events.getSeed();
+
+    game = new ChessGame(seed);
+
+    let moves = await events.getAllEvents();
+
+    let date = moves.date;
+    moves = moves.events;
+
+    console.log("moves: ", moves);
+    for (let i = 0; i < moves.length; i++) {
+      if (moves[i].type === 'movePiece') {
+        game.processMove(moves[i].data, moves[i].user);
+      }
+      //onEvent('added', moves[i]);
+    }
+
+    events.addEventCallback(onEvent);
+    events.suscribeEvents(date);
+  }
 });
 
 function leaveGame () {
