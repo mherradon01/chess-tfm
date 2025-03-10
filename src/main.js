@@ -10,12 +10,8 @@ var config = {
 }
 
 let game = null
-let moveBoard = new ChessBoard('move-board', {position: 'start', draggable: false, pieceTheme: '/chesspieces/wikipedia/{piece}.png'})
-
-/*const boardInfo = document.getElementById('board-info');
-  boardInfo.classList.remove('hidden');
-  boardInfo.style.display = 'flex'; // Ensure it is displayed
-  game = new ChessGame(config)*/
+let moveBoard = new ChessBoard('move-board', { position: 'start', draggable: false, pieceTheme: '/chesspieces/wikipedia/{piece}.png' })
+let selectedRoomId = null;
 
 document.getElementById('fen-button').addEventListener('click', () => {
   const fenText = document.getElementById('fen').innerText
@@ -36,16 +32,18 @@ document.addEventListener('click', (event) => {
   }
 });
 
-document.querySelector('.close').addEventListener('click', () => {
-  const modal = document.getElementById('move-modal');
-  modal.style.display = 'none';
+document.querySelectorAll('.close').forEach(closeButton => {
+  closeButton.addEventListener('click', () => {
+    closeButton.closest('.modal').style.display = 'none';
+  });
 });
 
 window.addEventListener('click', (event) => {
-  const modal = document.getElementById('move-modal');
-  if (event.target === modal) {
-    modal.style.display = 'none';
-  }
+  document.querySelectorAll('.modal').forEach(modal => {
+    if (event.target === modal) {
+      modal.style.display = 'none';
+    }
+  });
 });
 
 document.getElementById('copy-fen-button').addEventListener('click', () => {
@@ -59,7 +57,7 @@ document.getElementById('copy-fen-button').addEventListener('click', () => {
 
 document.getElementById('start-game-button').addEventListener('click', async () => {
   // alert('Start Game button clicked');
-  
+
   const seed = config
   const room = await events.createGame(seed);
   if (room) {
@@ -70,6 +68,8 @@ document.getElementById('start-game-button').addEventListener('click', async () 
     document.getElementById('start-game-button').style.display = 'none';
     document.getElementById('join-game-button').style.display = 'none';
     document.getElementById('leave-game-button').style.display = 'block';
+    document.getElementById('list-rooms-button').style.display = 'none'; // Ensure list rooms button is hidden
+    document.getElementById('reset-game-button').style.display = 'block'; // Ensure reset button is visible
 
     // display board
     const boardInfo = document.getElementById('board-info');
@@ -79,7 +79,6 @@ document.getElementById('start-game-button').addEventListener('click', async () 
     game = new ChessGame(config);
     events.addEventCallback(onEvent);
 
-    document.getElementById('reset-game-button').style.display = 'block'; // Ensure reset button is visible
   }
 });
   
@@ -115,6 +114,7 @@ document.getElementById('join-game-button').addEventListener('click', async () =
     document.getElementById('start-game-button').style.display = 'none';
     document.getElementById('join-game-button').style.display = 'none';
     document.getElementById('leave-game-button').style.display = 'block';
+    document.getElementById('list-rooms-button').style.display = 'none'; // Ensure list rooms button is hidden
 
     // display board
     const boardInfo = document.getElementById('board-info');
@@ -146,7 +146,82 @@ document.getElementById('join-game-button').addEventListener('click', async () =
   }
 });
 
-function leaveGame () {
+document.getElementById('list-rooms-button').addEventListener('click', async () => {
+  const rooms = await events.listRooms();
+  const roomsList = document.getElementById('rooms-list');
+  roomsList.innerHTML = '';
+  if (rooms === null || rooms.length === 0) {
+    const listItem = document.createElement('p');
+    listItem.textContent = 'No rooms available';
+    roomsList.appendChild(listItem);
+  }
+  rooms.forEach(room => {
+    const listItem = document.createElement('li');
+    const createdAt = room.createdAt ? new Date(room.createdAt.seconds * 1000).toLocaleString() : 'Unknown';
+    listItem.textContent = `Room ID: ${room.id} (Created at: ${createdAt})`;
+    listItem.dataset.roomId = room.id;
+    listItem.classList.add('selectable');
+    listItem.addEventListener('click', () => {
+      document.querySelectorAll('.selectable').forEach(item => item.classList.remove('selected'));
+      listItem.classList.add('selected');
+      selectedRoomId = room.id;
+      document.getElementById('join-selected-room-button').style.display = 'block';
+      document.getElementById('delete-selected-room-button').style.display = 'block';
+    });
+    roomsList.appendChild(listItem);
+  });
+  document.getElementById('rooms-modal').style.display = 'block';
+});
+
+document.getElementById('join-selected-room-button').addEventListener('click', async () => {
+  if (selectedRoomId) {
+    const room = await events.loadGame(selectedRoomId);
+    if (room) {
+      document.getElementById('room-code').innerText = room;
+      document.getElementById('room-indicator').style.display = 'block';
+
+      document.getElementById('start-game-button').style.display = 'none';
+      document.getElementById('join-game-button').style.display = 'none';
+      document.getElementById('list-rooms-button').style.display = 'none';
+      document.getElementById('leave-game-button').style.display = 'block';
+
+      const boardInfo = document.getElementById('board-info');
+      boardInfo.classList.remove('hidden');
+      boardInfo.style.display = 'flex';
+
+      let seed = events.getSeed();
+      game = new ChessGame(seed);
+
+      let moves = await events.getAllEvents();
+      let date = moves.date;
+      moves = moves.events;
+
+      for (let i = 0; i < moves.length; i++) {
+        if (moves[i].type === 'movePiece') {
+          game.processMove(moves[i].data, moves[i].user);
+        } else if (moves[i].type === 'rollback') {
+          game.rollbackToPosition(moves[i].data.fen);
+        }
+      }
+
+      events.addEventCallback(onEvent);
+      events.suscribeEvents(date);
+
+      document.getElementById('reset-game-button').style.display = 'block';
+      document.getElementById('rooms-modal').style.display = 'none';
+    }
+  }
+});
+
+document.getElementById('delete-selected-room-button').addEventListener('click', async () => {
+  if (selectedRoomId) {
+    await events.deleteRoom(selectedRoomId);
+    document.getElementById('rooms-modal').style.display = 'none';
+    alert('Room deleted successfully');
+  }
+});
+
+function leaveGame() {
   if (game) {
     game.endGame();
     game = null;
@@ -156,6 +231,7 @@ function leaveGame () {
   document.getElementById('leave-game-button').style.display = 'none';
   document.getElementById('start-game-button').style.display = 'block';
   document.getElementById('join-game-button').style.display = 'block';
+  document.getElementById('list-rooms-button').style.display = 'block'; // Ensure list rooms button is visible
   document.getElementById('room-code').innerText = 'None';
   document.getElementById('room-indicator').style.display = 'none';
 

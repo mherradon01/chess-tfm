@@ -36,6 +36,8 @@
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%); /* Center the modal */
+      max-height: 80vh; /* Limit the height */
+      overflow-y: auto; /* Enable vertical scrolling */
     }
 
     .close {
@@ -68,15 +70,22 @@
       padding: 10px; /* Add padding to the menu */
     }
 
-    #start-game-button, #join-game-button {
+    #start-game-button, #join-game-button, #list-rooms-button {
       position: fixed;
-      top: 50%;
       left: 50%;
-      transform: translate(-50%, -50%);
+      transform: translateX(-50%);
+    }
+
+    #start-game-button {
+      top: 50%;
     }
 
     #join-game-button {
       top: 60%; /* Adjust the position of the Join Game button */
+    }
+
+    #list-rooms-button {
+      top: 70%; /* Adjust the position of the List Rooms button */
     }
 
     #room-indicator {
@@ -89,6 +98,25 @@
       border: 1px solid #888;
       display: none; /* Hide by default */
     }
+
+    .selectable {
+      cursor: pointer;
+      padding: 10px;
+      margin: 5px 0;
+      border: 1px solid #888;
+      border-radius: 5px;
+      background-color: #444;
+      color: #fff;
+    }
+
+    .selectable:hover {
+      background-color: #555;
+    }
+
+    .selected {
+      background-color: #666;
+      border-color: #fff;
+    }
   </style>
 </head>
 <body>
@@ -98,6 +126,7 @@
     <button id="logout-button" style="display: none;">Logout</button>
     <button id="start-game-button">Start Game</button>
     <button id="join-game-button">Join Game</button>
+    <button id="list-rooms-button">List Rooms</button>
     <button id="leave-game-button" style="display: none;">Leave Game</button>
     <button id="reset-game-button" style="display: none;">Reset Game</button>
   </div>
@@ -144,7 +173,29 @@
     </div>
   </div>
   <div id="room-indicator">Room: <span id="room-code">None</span></div>
+  <div id="rooms-modal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <h2>Your Rooms</h2>
+      <ul id="rooms-list"></ul>
+      <button id="join-selected-room-button" style="display: none;">Join Selected Room</button>
+      <button id="delete-selected-room-button" style="display: none;">Delete Selected Room</button>
+    </div>
+  </div>
   <script type="module" src="/src/main.js"></script>
+  <script>
+    // Get the modal
+    var modals = document.getElementsByClassName('modal');
+
+    // When the user clicks anywhere outside of the modal, close it
+    window.onclick = function(event) {
+      for (var i = 0; i < modals.length; i++) {
+        if (event.target == modals[i]) {
+          modals[i].style.display = "none";
+        }
+      }
+    }
+  </script>
 </body>
 
 </html>
