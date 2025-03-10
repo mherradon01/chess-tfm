@@ -149,11 +149,15 @@ document.getElementById('list-rooms-button').addEventListener('click', async () 
   const rooms = await events.listRooms();
   const roomsList = document.getElementById('rooms-list');
   roomsList.innerHTML = '';
+  document.getElementById('rooms-modal').style.display = 'block';
+
   if (rooms === null || rooms.length === 0) {
     const listItem = document.createElement('p');
     listItem.textContent = 'No rooms available';
     roomsList.appendChild(listItem);
+    return;
   }
+
   rooms.forEach(room => {
     const listItem = document.createElement('li');
     const createdAt = room.createdAt ? new Date(room.createdAt.seconds * 1000).toLocaleString() : 'Unknown';
@@ -169,7 +173,6 @@ document.getElementById('list-rooms-button').addEventListener('click', async () 
     });
     roomsList.appendChild(listItem);
   });
-  document.getElementById('rooms-modal').style.display = 'block';
 });
 
 document.getElementById('join-selected-room-button').addEventListener('click', async () => {
