@@ -3,12 +3,6 @@ import './chessboard/css/chessboard-1.0.0.css'
 import ChessGame from './chess.js'
 import events from './event-driven/events.js'
 
-var config = {
-  pieceTheme: '/chesspieces/wikipedia/{piece}.png',
-  position: 'start',
-  draggable: true,
-}
-
 let game = null
 let moveBoard = new ChessBoard('move-board', { position: 'start', draggable: false, pieceTheme: '/chesspieces/wikipedia/{piece}.png' })
 let selectedRoomId = null;
@@ -58,7 +52,12 @@ document.getElementById('copy-fen-button').addEventListener('click', () => {
 document.getElementById('start-game-button').addEventListener('click', async () => {
   // alert('Start Game button clicked');
 
-  const seed = config
+
+  const seed = {
+    pieceTheme: '/chesspieces/wikipedia/{piece}.png',
+    position: 'start',
+    draggable: true,
+  }
   const room = await events.createGame(seed);
   if (room) {
     // alert('Game created with room code: ' + room);
@@ -76,12 +75,12 @@ document.getElementById('start-game-button').addEventListener('click', async () 
     boardInfo.classList.remove('hidden');
     boardInfo.style.display = 'flex'; // Ensure it is displayed
 
-    game = new ChessGame(config);
+    game = new ChessGame(seed);
     events.addEventCallback(onEvent);
 
   }
 });
-  
+
 function onEvent(type, event) {
   // check if game exists and event is timestamped
   if (!game || !event.timestamp) return;
