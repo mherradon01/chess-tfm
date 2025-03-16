@@ -29,6 +29,10 @@ document.addEventListener('click', (event) => {
 document.querySelectorAll('.close').forEach(closeButton => {
   closeButton.addEventListener('click', () => {
     closeButton.closest('.modal').style.display = 'none';
+    // Clear selection when closing the modal
+    document.querySelectorAll('.selectable').forEach(item => item.classList.remove('selected'));
+    document.getElementById('join-selected-room-button').style.display = 'none';
+    document.getElementById('delete-selected-room-button').style.display = 'none';
   });
 });
 
@@ -36,6 +40,10 @@ window.addEventListener('click', (event) => {
   document.querySelectorAll('.modal').forEach(modal => {
     if (event.target === modal) {
       modal.style.display = 'none';
+      // Clear selection when closing the modal
+      document.querySelectorAll('.selectable').forEach(item => item.classList.remove('selected'));
+      document.getElementById('join-selected-room-button').style.display = 'none';
+      document.getElementById('delete-selected-room-button').style.display = 'none';
     }
   });
 });
@@ -67,6 +75,7 @@ document.getElementById('start-game-button').addEventListener('click', async () 
     document.getElementById('start-game-button').style.display = 'none';
     document.getElementById('join-game-button').style.display = 'none';
     document.getElementById('leave-game-button').style.display = 'block';
+    document.getElementById('my-games-button').style.display = 'none';
     document.getElementById('list-rooms-button').style.display = 'none'; // Ensure list rooms button is hidden
     document.getElementById('reset-game-button').style.display = 'block'; // Ensure reset button is visible
 
@@ -114,6 +123,7 @@ document.getElementById('join-game-button').addEventListener('click', async () =
     document.getElementById('join-game-button').style.display = 'none';
     document.getElementById('leave-game-button').style.display = 'block';
     document.getElementById('list-rooms-button').style.display = 'none'; // Ensure list rooms button is hidden
+    document.getElementById('my-games-button').style.display = 'none';
 
     // display board
     const boardInfo = document.getElementById('board-info');
@@ -155,6 +165,36 @@ document.getElementById('list-rooms-button').addEventListener('click', async () 
     const listItem = document.createElement('p');
     listItem.textContent = 'No rooms available';
     roomsList.appendChild(listItem);
+    return; 
+  }
+
+  rooms.forEach(room => {
+    const listItem = document.createElement('li');
+    const createdAt = room.createdAt ? new Date(room.createdAt.seconds * 1000).toLocaleString() : 'Unknown';
+    listItem.textContent = `Room ID: ${room.id} (Created at: ${createdAt})`;
+    listItem.dataset.roomId = room.id;
+    listItem.classList.add('selectable');
+    listItem.addEventListener('click', () => {
+      document.querySelectorAll('.selectable').forEach(item => item.classList.remove('selected'));
+      listItem.classList.add('selected');
+      selectedRoomId = room.id;
+      document.getElementById('join-selected-room-button').style.display = 'block';
+      document.getElementById('delete-selected-room-button').style.display = 'none';
+    });
+    roomsList.appendChild(listItem);
+  });
+});
+
+document.getElementById('my-games-button').addEventListener('click', async () => {
+  const rooms = await events.myRooms();
+  const roomsList = document.getElementById('rooms-list');
+  roomsList.innerHTML = '';
+  document.getElementById('rooms-modal').style.display = 'block';
+
+  if (rooms === null || rooms.length === 0) {
+    const listItem = document.createElement('p');
+    listItem.textContent = 'No rooms available';
+    roomsList.appendChild(listItem);
     return;
   }
 
@@ -184,6 +224,7 @@ document.getElementById('join-selected-room-button').addEventListener('click', a
 
       document.getElementById('start-game-button').style.display = 'none';
       document.getElementById('join-game-button').style.display = 'none';
+      document.getElementById('my-games-button').style.display = 'none';
       document.getElementById('list-rooms-button').style.display = 'none';
       document.getElementById('leave-game-button').style.display = 'block';
 
@@ -233,6 +274,7 @@ function leaveGame() {
   document.getElementById('leave-game-button').style.display = 'none';
   document.getElementById('start-game-button').style.display = 'block';
   document.getElementById('join-game-button').style.display = 'block';
+  document.getElementById('my-games-button').style.display = 'block';
   document.getElementById('list-rooms-button').style.display = 'block'; // Ensure list rooms button is visible
   document.getElementById('room-code').innerText = 'None';
   document.getElementById('room-indicator').style.display = 'none';

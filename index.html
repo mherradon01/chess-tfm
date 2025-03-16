@@ -26,18 +26,25 @@
     }
 
     .modal-content {
-      background-color: #5e5c5c; /* Change to grey */
-      margin: auto; /* Center the modal */
+      background-color: #5e5c5c;
+      /* Change to grey */
+      margin: auto;
+      /* Center the modal */
       padding: 20px;
       border: 1px solid #888;
-      width: auto; /* Adjust width to fit content */
-      max-width: 600px; /* Set a maximum width */
+      width: auto;
+      /* Adjust width to fit content */
+      max-width: 600px;
+      /* Set a maximum width */
       position: absolute;
       top: 50%;
       left: 50%;
-      transform: translate(-50%, -50%); /* Center the modal */
-      max-height: 80vh; /* Limit the height */
-      overflow-y: auto; /* Enable vertical scrolling */
+      transform: translate(-50%, -50%);
+      /* Center the modal */
+      max-height: 80vh;
+      /* Limit the height */
+      overflow-y: auto;
+      /* Enable vertical scrolling */
     }
 
     .close {
@@ -55,22 +62,31 @@
     }
 
     #move-fen {
-      display: none; /* Make move-fen invisible */
+      display: none;
+      /* Make move-fen invisible */
     }
 
-    #pgn td:nth-child(2):hover, #pgn td:nth-child(3):hover {
-      color: blue; /* Change text color to blue on hover */
-      cursor: pointer; /* Change cursor to pointer */
+    #pgn td:nth-child(2):hover,
+    #pgn td:nth-child(3):hover {
+      color: blue;
+      /* Change text color to blue on hover */
+      cursor: pointer;
+      /* Change cursor to pointer */
     }
 
     #menu {
       display: flex;
-      justify-content: space-between; /* Distribute space between buttons */
+      justify-content: space-between;
+      /* Distribute space between buttons */
       align-items: center;
-      padding: 10px; /* Add padding to the menu */
+      padding: 10px;
+      /* Add padding to the menu */
     }
 
-    #start-game-button, #join-game-button, #list-rooms-button {
+    #start-game-button,
+    #join-game-button,
+    #my-games-button,
+    #list-rooms-button {
       position: fixed;
       left: 50%;
       transform: translateX(-50%);
@@ -81,22 +97,32 @@
     }
 
     #join-game-button {
-      top: 60%; /* Adjust the position of the Join Game button */
+      top: 60%;
+      /* Adjust the position of the Join Game button */
+    }
+
+    #my-games-button {
+      top: 70%;
+      /* Adjust the position of the My Games button */
     }
 
     #list-rooms-button {
-      top: 70%; /* Adjust the position of the List Rooms button */
+      top: 80%;
+      /* Adjust the position of the List Rooms button */
     }
 
     #room-indicator {
       position: fixed;
       bottom: 10px;
       left: 10px;
-      background-color: #333; /* Change to dark grey */
-      color: #fff; /* Change text color to white */
+      background-color: #333;
+      /* Change to dark grey */
+      color: #fff;
+      /* Change text color to white */
       padding: 5px;
       border: 1px solid #888;
-      display: none; /* Hide by default */
+      display: none;
+      /* Hide by default */
     }
 
     .selectable {
@@ -130,19 +156,25 @@
     }
 
     .rooms-list-container {
-      max-height: 60vh; /* Limit the height of the scrollable section */
-      overflow-y: auto; /* Enable vertical scrolling */
+      max-height: 60vh;
+      /* Limit the height of the scrollable section */
+      overflow-y: auto;
+      /* Enable vertical scrolling */
       margin-top: 20px;
     }
   </style>
 </head>
+
 <body>
-  <div id="title"><h1>Chess-tfm</h1></div>
+  <div id="title">
+    <h1>Chess-tfm</h1>
+  </div>
   <div id="menu">
     <button id="login-button">Login</button>
     <button id="logout-button" style="display: none;">Logout</button>
     <button id="start-game-button">Start Game</button>
     <button id="join-game-button">Join Game</button>
+    <button id="my-games-button">My Games</button>
     <button id="list-rooms-button">List Rooms</button>
     <button id="leave-game-button" style="display: none;">Leave Game</button>
     <button id="reset-game-button" style="display: none;">Reset Game</button>
@@ -209,10 +241,14 @@
     var modals = document.getElementsByClassName('modal');
 
     // When the user clicks anywhere outside of the modal, close it
-    window.onclick = function(event) {
+    window.onclick = function (event) {
       for (var i = 0; i < modals.length; i++) {
         if (event.target == modals[i]) {
           modals[i].style.display = "none";
+          // Clear selection when closing the modal
+          document.querySelectorAll('.selectable').forEach(item => item.classList.remove('selected'));
+          document.getElementById('join-selected-room-button').style.display = 'none';
+          document.getElementById('delete-selected-room-button').style.display = 'none';
         }
       }
     }
