@@ -102,6 +102,7 @@ body {
 
 #pgn-table table {
   border-collapse: collapse;
+  /* border-right: 1px solid #ddd; /* Add right border */
   width: 100%;
 }
 
@@ -115,7 +116,6 @@ body {
   color: #fff; /* White text color */
   text-align: center;
   position: sticky;
-  top: 0;
   z-index: 1;
 }
 
