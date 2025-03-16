@@ -71,10 +71,10 @@ class ChessGame {
     processMove(move, user, username) {
         // move 0 set white user
         // move 1 set black user
-        if (this.moves.length === 0) {
+        if (this.moves.length === 0 && this.white === undefined) {
             this.white = user
             this.whiteUser = username
-        } else if (this.moves.length === 1) {
+        } else if (this.moves.length === 1 && this.black === undefined) {
             this.black = user
             this.blackUser = username
         }
