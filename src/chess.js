@@ -17,6 +17,7 @@ class ChessGame {
         config.onMouseoutSquare = this.onMouseoutSquare.bind(this)
         config.onMouseoverSquare = this.onMouseoverSquare.bind(this)
         config.onSnapEnd = this.onSnapEnd.bind(this)
+        this.updateStatus(false)
     }
 
     whiteSquareGrey = '#a9a9a9'
@@ -121,7 +122,7 @@ class ChessGame {
         this.chessBoard.position(this.game.fen())
     }
 
-    updateStatus() {
+    updateStatus(full = true) {
         var status = ''
         this.redSquare?.css('background', '')
         this.redSquare = null
@@ -157,23 +158,34 @@ class ChessGame {
                 this.redSquare?.css('background', 'yellow')
             }
         }
+        // Update FEN
+        document.getElementById('fen').innerText = this.game.fen()
 
         document.getElementById('status').innerText = status
-
-        const moves = this.game.history({ verbose: true })
-        this.moves.push({ fen: this.game.fen(), move: moves.at(-1) })
 
         // Update PGN table
         const pgnTableBody = document.getElementById('pgn')
         pgnTableBody.innerHTML = ''
+
+        if (!full) return
+        
+        const moves = this.game.history({ verbose: true })
+        this.moves.push({ fen: this.game.fen(), move: moves.at(-1) })
+
+
         for (let i = 0; i < this.moves.length; i += 2) {
             const row = document.createElement('tr')
             const moveNumberCell = document.createElement('td')
             moveNumberCell.textContent = (i / 2 + 1).toString()
             const whiteMoveCell = document.createElement('td')
 
-            whiteMoveCell.textContent = this.moves[i].move.san
-            whiteMoveCell.dataset.fen = this.moves[i].fen
+            if (this.moves[i] === "NULLMOVE") {
+                whiteMoveCell.textContent = ''
+                whiteMoveCell.dataset.fen = ''
+            } else {
+                whiteMoveCell.textContent = this.moves[i].move.san
+                whiteMoveCell.dataset.fen = this.moves[i].fen
+            }
             const blackMoveCell = document.createElement('td')
             blackMoveCell.textContent = this.moves[i + 1] ? this.moves[i + 1].move.san : ''
             blackMoveCell.dataset.fen = this.moves[i + 1] ? this.moves[i + 1].fen : ''
@@ -182,9 +194,6 @@ class ChessGame {
             row.appendChild(blackMoveCell)
             pgnTableBody.appendChild(row)
         }
-
-        // Update FEN
-        document.getElementById('fen').innerText = this.game.fen()
     }
 
     removeGreySquares() {
@@ -268,8 +277,25 @@ class ChessGame {
         this.game.reset();
         this.chessBoard.start();
         this.moves = [];
-        document.getElementById('pgn').innerHTML = ''; // Clear the PGN table
-        // this.updateStatus();
+        //document.getElementById('pgn').innerHTML = ''; // Clear the PGN table
+
+        // reset msg
+        this.updateStatus(false);
+    }
+
+    loadFEN(fen) {
+        const user = events.getUser().uid;
+        if (user !== this.white && user !== this.black) return;
+
+        this.game.load(fen);
+        this.chessBoard.position(fen);
+        // console.log(this.moves[0])
+        this.moves = [];
+        if (this.game.turn() === 'b') {
+            this.moves.push("NULLMOVE")
+        }
+
+        this.updateStatus(false);
     }
 }
 

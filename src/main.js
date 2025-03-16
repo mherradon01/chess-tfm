@@ -2,6 +2,7 @@ import './style.css'
 import './chessboard/css/chessboard-1.0.0.css'
 import ChessGame from './chess.js'
 import events from './event-driven/events.js'
+import { event } from 'jquery'
 
 let game = null
 let moveBoard = new ChessBoard('move-board', { position: 'start', draggable: false, pieceTheme: '/chesspieces/wikipedia/{piece}.png' })
@@ -87,6 +88,7 @@ document.getElementById('start-game-button').addEventListener('click', async () 
     game = new ChessGame(seed);
     events.addEventCallback(onEvent);
 
+    document.getElementById('load-fen-button').style.display = 'block'; // Show Load FEN button
   }
 });
 
@@ -104,6 +106,10 @@ function onEvent(type, event) {
     } else if (event.type === 'resetGame') {
       if (event.user === game.white || event.user === game.black) {
         game.resetGame();
+      }
+    } else if (event.type === 'loadFEN') {
+      if (event.user === game.white || event.user === game.black) {
+        game.loadFEN(event.data.fen);
       }
     }
   }
@@ -152,6 +158,7 @@ document.getElementById('join-game-button').addEventListener('click', async () =
     events.suscribeEvents(date);
 
     document.getElementById('reset-game-button').style.display = 'block'; // Ensure reset button is visible
+    document.getElementById('load-fen-button').style.display = 'block'; // Show Load FEN button
   }
 });
 
@@ -240,18 +247,26 @@ document.getElementById('join-selected-room-button').addEventListener('click', a
       moves = moves.events;
 
       for (let i = 0; i < moves.length; i++) {
-        if (moves[i].type === 'movePiece') {
+
+        onEvent('added', moves[i]);
+        /*if (moves[i].type === 'movePiece') {
           game.processMove(moves[i].data, moves[i].user);
         } else if (moves[i].type === 'rollback') {
           game.rollbackToPosition(moves[i].data.fen);
-        }
+        } else if (moves[i].type === 'resetGame') {
+          game.resetGame();
+        } else if (moves[i].type === 'loadFEN') {
+          game.loadFEN(moves[i].data.fen);
+        }*/
       }
+      game.updateStatus(false);
 
       events.addEventCallback(onEvent);
       events.suscribeEvents(date);
 
       document.getElementById('reset-game-button').style.display = 'block';
       document.getElementById('rooms-modal').style.display = 'none';
+      document.getElementById('load-fen-button').style.display = 'block'; // Show Load FEN button
     }
   }
 });
@@ -261,6 +276,13 @@ document.getElementById('delete-selected-room-button').addEventListener('click',
     await events.deleteRoom(selectedRoomId);
     document.getElementById('rooms-modal').style.display = 'none';
     alert('Room deleted successfully');
+  }
+});
+
+document.getElementById('load-fen-button').addEventListener('click', () => {
+  const fen = prompt('Enter the FEN string:');
+  if (fen) {
+    events.addEvent("loadFEN", { fen: fen });
   }
 });
 
@@ -284,6 +306,7 @@ function leaveGame() {
   boardInfo.style.display = 'none'; // Ensure it is hidden
 
   document.getElementById('reset-game-button').style.display = 'none'; // Hide reset button
+  document.getElementById('load-fen-button').style.display = 'none'; // Hide Load FEN button
 }
 
 document.getElementById('leave-game-button').addEventListener('click', leaveGame);
