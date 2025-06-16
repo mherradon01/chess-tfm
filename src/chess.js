@@ -250,10 +250,11 @@ class ChessGame {
         document.getElementById('black-player').innerText = 'Black: Waiting...'
     }
 
-    rollbackToPosition(fen) {
-        const user = events.getUser().uid;
-        if (user !== this.white && user !== this.black) return;
-
+    rollbackToPosition(fen, user = events.getUser().uid) {
+        if (user !== this.white && user !== this.black) {
+            console.log('User not allowed to rollback');
+            return;
+        }
         const targetMoveIndex = this.moves.findIndex(move => move.fen === fen);
         if (targetMoveIndex === -1) return;
 
@@ -270,8 +271,7 @@ class ChessGame {
         // this.updateStatus();
     }
 
-    resetGame() {
-        const user = events.getUser().uid;
+    resetGame(user=events.getUser().uid) {
         if (user !== this.white && user !== this.black) return;
 
         this.game.reset();
@@ -283,8 +283,7 @@ class ChessGame {
         this.updateStatus(false);
     }
 
-    loadFEN(fen) {
-        const user = events.getUser().uid;
+    loadFEN(fen, user=events.getUser().uid) {
         if (user !== this.white && user !== this.black) return;
 
         this.game.load(fen);

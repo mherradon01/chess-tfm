@@ -101,15 +101,15 @@ function onEvent(type, event) {
       game.processMove(event.data, event.user, event.username);
     } else if (event.type === 'rollback') {
       if (event.user === game.white || event.user === game.black) {
-        game.rollbackToPosition(event.data.fen);
+        game.rollbackToPosition(event.data.fen, event.user);
       }
     } else if (event.type === 'resetGame') {
       if (event.user === game.white || event.user === game.black) {
-        game.resetGame();
+        game.resetGame(event.user);
       }
     } else if (event.type === 'loadFEN') {
       if (event.user === game.white || event.user === game.black) {
-        game.loadFEN(event.data.fen);
+        game.loadFEN(event.data.fen, event.user);
       }
     }
   }
@@ -149,7 +149,7 @@ document.getElementById('join-game-button').addEventListener('click', async () =
       if (moves[i].type === 'movePiece') {
         game.processMove(moves[i].data, moves[i].user);
       } else if (moves[i].type === 'rollback') {
-        game.rollbackToPosition(moves[i].data.fen);
+        game.rollbackToPosition(moves[i].data.fen, moves[i].user);
       }
       //onEvent('added', moves[i]);
     }
